@@ -1,0 +1,9 @@
+#!/bin/sh
+
+
+if [ -f /var/www/override.ini ]; then
+	if [ -f /usr/local/etc/php/conf.d/02-project-override.ini ]; then
+		rm /usr/local/etc/php/conf.d/02-project-override.ini 
+	fi
+	ln -s /var/www/override.ini /usr/local/etc/php/conf.d/02-project-override.ini
+fi

@@ -1,0 +1,36 @@
+#!/bin/bash
+set -eo pipefail
+shopt -s nullglob
+
+CONF_DIR=/etc/nginx/conf.d
+
+usage() {
+    echo -e "Usage: ngxconfig file\n"
+    echo -e "Enables given nginx configuration stored in \"${CONF_DIR}\" as \".disabled\"."
+    echo -e "Exits with code 1 if configuration file was not found.\n"
+    echo -e "Options:\n"
+    echo -e "  -h | --help\n\tShow this help.\n"
+    echo -e "Example:\n  ngxconfig sf.conf\n"
+}
+
+config=
+
+while [[ "$1" != "" ]]; do
+    case $1 in
+        -h | --help )           usage
+                                exit
+                                ;;
+        * )                     config=$1
+    esac
+    shift
+done
+
+if [[ -f "/etc/nginx/conf.d/${config}.disabled" ]]; then
+    echo "Enabling config \"${config}\"..."
+    mv ${CONF_DIR}/${config}.disabled ${CONF_DIR}/${config}
+elif [[ -f "/etc/nginx/conf.d/${config}" ]]; then
+    echo "Config \"${config}\" already enabled!"
+else
+    echo "Config \"${config}\" not found!"
+    exit 1
+fi

@@ -1,0 +1,38 @@
+server {
+    client_max_body_size 256M;
+    client_body_temp_path /tmp 1 2;
+
+    root /var/www/web;
+    
+    rewrite ^/app\.php/?(.*)$ /$1 permanent;
+    
+    try_files $uri @rewriteapp;
+
+    location @rewriteapp {
+       rewrite ^(.*)$ /app.php/$1 last;
+    }
+    
+    # Deny all . files
+    location ~ /\. {
+        deny all;
+    }
+
+    location ~ ^/(app|app_dev)\.php(/|$) {
+        
+        fastcgi_pass 127.0.0.1:9000;
+        fastcgi_split_path_info ^(.+\.php)(/.*)$;
+        fastcgi_index app.php;
+        send_timeout 1800;
+        fastcgi_read_timeout 1800;
+        fastcgi_param  SCRIPT_FILENAME $document_root$fastcgi_script_name;
+        fastcgi_buffers 16 16k;
+        fastcgi_buffer_size 32k;
+        include fastcgi_params;
+    }
+   
+    location /(bundles|media) {
+        access_log off;
+        expires 30d;
+        try_files $uri @rewriteapp;
+    }
+}

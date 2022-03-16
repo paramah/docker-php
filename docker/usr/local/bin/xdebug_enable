@@ -1,0 +1,17 @@
+#!/bin/bash
+
+echo "=>>>>>>>>> Actual environment: ${ENVIRONMENT}"
+
+if [[ $ENVIRONMENT != 'production' ]]; then
+	echo "==============================>> Install phpunit"
+	wget -O phpunit https://phar.phpunit.de/phpunit-9.phar 
+	install phpunit /usr/local/bin
+fi 
+
+if [[ $ENVIRONMENT == 'development' ]]; then
+	echo "==============================>> Install xdebug"
+	apk --update --no-cache add autoconf g++ make
+	pecl install -f xdebug
+	docker-php-ext-enable xdebug
+	apk del --purge autoconf g++ make
+fi 
